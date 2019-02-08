@@ -171,6 +171,36 @@ CLOSE TableCursor;
 DEALLOCATE TableCursor;
 ```
 
+### Script all tables but excluding given
+DECLARE @Name nvarchar(261);
+DECLARE TableCursor CURSOR LOCAL FAST_FORWARD FOR
+SELECT QUOTENAME(s.name) + '.' + QUOTENAME(t.name) ObjectName
+FROM sys.tables t
+  INNER JOIN sys.schemas s ON s.schema_id = t.schema_id
+WHERE t.name NOT LIKE 'sys%'
+FOR READ ONLY
+;
+OPEN TableCursor;
+FETCH NEXT FROM TableCursor INTO @Name;
+
+WHILE @@FETCH_STATUS = 0
+BEGIN
+
+  --EXECUTE dbo.GenerateInsert @ObjectName = @Name;
+  --FETCH NEXT FROM TableCursor INTO @Name;
+
+  if (@Name != '[dbo].[__EFMigrationsHistory]')
+  begin
+	EXECUTE dbo.GenerateInsert @ObjectName = @Name;	
+  end
+
+  FETCH NEXT FROM TableCursor INTO @Name;
+
+END
+
+CLOSE TableCursor;
+DEALLOCATE TableCursor;
+
 ## Contributing to this project ##
 
 Anyone and everyone is welcome to contribute to [sql-generate-insert](https://github.com/drumsta/sql-generate-insert),
