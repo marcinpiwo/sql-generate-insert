@@ -1,6 +1,3 @@
-IF EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(N'dbo.GenerateInsert') AND type in (N'P', N'PC'))
-  DROP PROCEDURE dbo.GenerateInsert;
-GO
 
 CREATE PROCEDURE dbo.GenerateInsert
 (
@@ -439,6 +436,11 @@ END ELSE BEGIN
   ;
   OPEN DataCursor;
   FETCH NEXT FROM DataCursor INTO @TableRow;
+
+  if(@@FETCH_STATUS = -1)
+  BEGIN
+	  RETURN
+  END
 
   WHILE @@FETCH_STATUS = 0
   BEGIN
